@@ -3,7 +3,6 @@
 
 import express from 'express';
 import ApplicationError from './helpers/error';
-import StatusCode from './types/statusCode';
 
 const app = express();
 
@@ -17,17 +16,15 @@ app.use(bodyParser.json());
 // ------------------
 //  ROUTES
 
+import catchAsync from './utils/catchAsync';
+
 app.get('/', (req, res) => {
     res.status(200).json({ message: 'Request success!' });
 });
 
-app.get('/error', async (req, res, next) => {
-    try {
-        throw new ApplicationError(StatusCode.BAD_REQUEST, 'Test Error');
-    } catch (err) {
-        next(err);
-    }
-});
+app.get('/error', catchAsync((req, res, next) => {
+    throw new ApplicationError('Test error', 400);
+}));
 
 // ------------------
 //  ERROR HANDLING
@@ -36,6 +33,8 @@ import errorMiddleware from './middleware/errorMiddleware';
 
 app.use(errorMiddleware);
 
-app.listen(4000, () => {
-    console.log('App listening on port 4000');
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => {
+    console.log(`App is listening on port ${port}`);
 });

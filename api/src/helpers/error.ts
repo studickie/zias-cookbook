@@ -1,5 +1,3 @@
-import StatusCode from '../types/statusCode';
-
 /*
 *   Node.js Error class: nodejs.org/api/errors.html#errors_new_error_message
 *   ------------------------------------------------------------------------
@@ -9,12 +7,18 @@ import StatusCode from '../types/statusCode';
 *       -> joyent.com/node-js/production/design/errors
 */
 
+type TStatusCode = 400 | 401 | 404 | 408 | 500;
+
 class ApplicationError extends Error {
+    public isOpError: boolean;
+
     constructor(
-        public statusCode: StatusCode,
-        message: string
+        public message = 'Server error',
+        public statusCode: TStatusCode = 500,
     ) {
         super(message);
+
+        this.isOpError = true;
     }
 
     get name(): string {

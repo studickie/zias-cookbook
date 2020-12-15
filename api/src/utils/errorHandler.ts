@@ -1,19 +1,18 @@
 import ApplicationError from '../helpers/error';
+import logger from '../helpers/logger';
 
 class ErrorHandler {
-    public static async handleError(error: Error): Promise<void> {
+    public static handleError(error: ApplicationError): void {
         
-        // todo: add calls to logger
+        logger.error({
+            name: error.name, 
+            message: error.message,
+            stack: error.stack || '--no-stack-trace',
+        });
 
-        new Promise((resolve, reject) => {
-            setTimeout(() => {
-                resolve(() => {console.log(error)});
-            }, 1000);
-        })
-    }
-
-    public static isOperationalError(error: Error): boolean {
-        return (error instanceof ApplicationError) ? true : false;
+        if (error.isOpError == undefined) {
+            process.exit(1);
+        }
     }
 }
 
