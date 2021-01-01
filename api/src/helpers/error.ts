@@ -7,18 +7,20 @@
 *       -> joyent.com/node-js/production/design/errors
 */
 
-type TStatusCode = 400 | 401 | 404 | 408 | 500;
+type StatusCode = 400 | 401 | 404 | 500;
 
-class ApplicationError extends Error {
+export class ApplicationError extends Error {
     public isOpError: boolean;
 
     constructor(
-        public message = 'Server error',
-        public statusCode: TStatusCode = 500,
+        public message = 'Oops! Something went wrong.',
+        public statusCode: StatusCode = 500
     ) {
         super(message);
 
         this.isOpError = true;
+
+        Error.captureStackTrace(this, ApplicationError);
     }
 
     get name(): string {

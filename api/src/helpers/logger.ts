@@ -1,3 +1,4 @@
+import path from 'path';
 import { createLogger, format, transports } from 'winston';
 const { combine, colorize, json, timestamp, printf, label } = format;
 
@@ -10,12 +11,12 @@ const { combine, colorize, json, timestamp, printf, label } = format;
 *       -> github.com/winstonjs/logform
 */
 
-const appRoot = process.env.NODE_PATH;
+const appRoot = process.env.NODE_PATH || path.resolve(__dirname, '../../');
 
-const consoleFormat = printf(({ label, message, trace }) => {
+const consoleFormat = printf(({ label, message, stack }) => {
     return `
     [${label}]: ${message}
-    ${trace}
+    ${stack}
     `;
 });
 
