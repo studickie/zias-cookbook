@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import ApplicationError from '../helpers/error';
-import ErrorHandler from '../utils/errorHandler';
+import { handleError } from '../utils/errorHandler';
 
-function errorMiddleware(error: ApplicationError, req: Request, res: Response, next: NextFunction) {
-    ErrorHandler.handleError(error);
+const useError = (error: ApplicationError, req: Request, res: Response, next: NextFunction): Response<unknown> => {
+    handleError(error);
     
     return res.status(error.statusCode).json({
         name: error.name,
@@ -11,4 +11,4 @@ function errorMiddleware(error: ApplicationError, req: Request, res: Response, n
     });
 }
 
-export default errorMiddleware;
+export default useError;
