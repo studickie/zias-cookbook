@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import ApplicationError from '../helpers/error';
-import { handleError } from '../utils/errorHandler';
+import ApplicationError from '../../helpers/error';
+import { handleError } from '../../utils/errorHandler';
 
-const useError = (error: ApplicationError, req: Request, res: Response, next: NextFunction): Response<unknown> => {
+function useError (error: ApplicationError, req: Request, res: Response, next: NextFunction): Response<unknown> {
     handleError(error);
     
     return res.status(error.statusCode).json({
