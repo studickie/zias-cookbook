@@ -3,6 +3,8 @@ import catchAsync from '../../utils/catchAsync';
 import * as userController from '../../controllers/userController';
 import ApplicationError from '../../helpers/error';
 
+import useValidateUserRequest from '../middleware/useValidateUserRequest';
+
 const router = express.Router();
 
 //~ User
@@ -28,6 +30,12 @@ router.get('/user/:id', catchAsync(async function(req, res) {
     }
 
     return res.status(200).json({ "message": "Hello World", "user": user });
+}));
+
+router.post('/user', useValidateUserRequest, catchAsync(async function(req, res) {
+
+    return res.status(200).json({ "message": "Good Check" });
+    
 }));
 
 export default router;

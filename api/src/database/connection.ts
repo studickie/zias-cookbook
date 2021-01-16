@@ -1,5 +1,8 @@
 import { MongoClient, ObjectId } from 'mongodb';
-import MongoCollection from '../types/MongoCollection';
+
+type MongoCollection =
+    | 'users'
+    | 'recipies';
 
 const dbName = process.env.DB_NAME;
 const dbUrl = process.env.DB_URL;
