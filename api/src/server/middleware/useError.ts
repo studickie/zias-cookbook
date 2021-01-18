@@ -5,7 +5,7 @@ import { handleError } from '../../utils/errorHandler';
 function useError (error: ApplicationError, req: Request, res: Response, next: NextFunction): Response<unknown> {
     handleError(error);
     
-    return res.status(error.statusCode).json({
+    return res.status(error.statusCode || 500).json({
         name: error.name,
         message: error.message
     });

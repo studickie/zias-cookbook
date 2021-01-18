@@ -2,25 +2,23 @@ import path from 'path';
 import fs from 'fs';
 import { handleError } from '../utils/errorHandler';
 import UserRequest from '../models/UserRequest';
+import ProjectSchema from '../types/ProjectSchema';
 
 const fsPromise = fs.promises;
-const nodePath = process.env.NODE_PATH;
+const nodePath = process.env.NODE_PATH || '';
 
-type ProjectSchema = 
-    | 'userRequest';
-
-function readSchema(schemaName: 'userRequest'): Promise<UserRequest>;
-async function readSchema (schemaName: ProjectSchema): Promise<unknown> {
+function readSchema(schemaName: 'userRequest'): Promise<UserRequest | undefined>;
+async function readSchema (schemaName: ProjectSchema): Promise<unknown | undefined> {
     try {
 
-        if (nodePath == undefined) {
-            throw new Error('Undefined path');
-        }
+        const filePath = path.join(nodePath, `/schemas/${schemaName}.json`)
 
-        const data = await fsPromise.readFile(path.join(nodePath, `/schemas/${schemaName}.json`), 'utf8');
+        const data = await fsPromise.readFile(filePath, 'utf8');
 
         if(!data) {
-            throw new Error('Document not found');
+            //! define a new type of error
+            //! define a logging action for this type of error
+            throw new Error(`Schema "${schemaName}" not found at "${filePath}"`);
         }
 
         return JSON.parse(data);

@@ -8,14 +8,13 @@ import useValidateUserRequest from '../middleware/useValidateUserRequest';
 const router = express.Router();
 
 //~ User
-router.get('/user', catchAsync(async function (req, res) {
-
+router.get('/user', catchAsync(async (req, res) => {
     const userList = await userController.findUsers();
 
     return res.status(200).json({ "message": " Hello World", "users": userList });
 }));
 
-router.get('/user/:id', catchAsync(async function(req, res) {
+router.get('/user/:id', catchAsync(async (req, res) => {
 
     const { id } = req.params;
 
@@ -32,7 +31,7 @@ router.get('/user/:id', catchAsync(async function(req, res) {
     return res.status(200).json({ "message": "Hello World", "user": user });
 }));
 
-router.post('/user', useValidateUserRequest, catchAsync(async function(req, res) {
+router.post('/user', useValidateUserRequest, catchAsync(async (req, res) => {
 
     return res.status(200).json({ "message": "Good Check" });
     

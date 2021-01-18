@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import validateUserRequest from '../../models/validation/ajv/userRequest';
+import userRequest from '../../models/validation/userRequest';
 import ApplicationError from '../../helpers/error';
 
-function useValidateUserRequest (req: Request, res: Response, next: NextFunction): void {
+async function useValidateUserRequest (req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
 
-    const validate = validateUserRequest({email, password});
+    const response = (await userRequest).validateSchema({email, password});
 
-    if (validate != null) {
+    if (response != null || response != undefined) {
         throw new ApplicationError('Invalid user request', 400);
     }
     
