@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import useError from './middleware/useError';
-import router from './routes';
+import usersRoutes from './routes/users';
 
 import { connect } from '../database/connection';
 import ApplicationError from '../helpers/error';
@@ -25,7 +25,7 @@ async function main() {
         app.use(bodyParser.json());
 
         // Routes
-        app.use(router);
+        app.use('/users', usersRoutes);
 
         // Catch error
         app.use(useError);

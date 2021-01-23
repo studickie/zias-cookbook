@@ -7,14 +7,17 @@ import useValidateUserRequest from '../middleware/useValidateUserRequest';
 
 const router = express.Router();
 
-//~ User
-router.get('/user', catchAsync(async (req, res) => {
+router.get('/', catchAsync(async (req, res) => {
     const userList = await userController.findUsers();
 
-    return res.status(200).json({ "message": " Hello World", "users": userList });
+    if (!userList) {
+        throw new ApplicationError('Bad Request', 400);
+    }
+
+    return res.status(200).json({ "users": userList });
 }));
 
-router.get('/user/:id', catchAsync(async (req, res) => {
+router.get('/:id', catchAsync(async (req, res) => {
 
     const { id } = req.params;
 
@@ -28,13 +31,19 @@ router.get('/user/:id', catchAsync(async (req, res) => {
         throw new ApplicationError('Not Found', 404);
     }
 
-    return res.status(200).json({ "message": "Hello World", "user": user });
+    return res.status(200).json({ "user": user });
 }));
 
-router.post('/user', useValidateUserRequest, catchAsync(async (req, res) => {
+router.post('/', useValidateUserRequest, catchAsync(async (req, res) => {
+    const { email, password } = req.body;
 
-    return res.status(200).json({ "message": "Good Check" });
-    
+    const user = await userController.createUser({ email, password });
+
+    if (!user) {
+        throw new ApplicationError('Bad Request', 400);
+    }
+
+    return res.status(200).json({ "new_user": user });
 }));
 
 export default router;
