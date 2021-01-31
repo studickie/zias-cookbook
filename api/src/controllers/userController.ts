@@ -4,43 +4,40 @@ import User from '../models/User';
 import UserRequest from '../models/UserRequest';
 import UserResponse from '../models/UserResponse';
 
-export async function findUsers (): Promise<UserResponse[] | null> {
+export async function findUsers(): Promise<UserResponse[]> {
     const response = await DbContext.findCollection<User>('users');
 
-    return response
-        ? response.map(usr => ({ _id: usr._id, email: usr.email }))
-        : null;
+    return response.map(usr => (
+        {
+            _id: usr._id,
+            email: usr.email
+        }
+    ));
 }
 
-export async function findUser (fieldName: string, fieldValue: string): Promise<UserResponse | null> {
+export async function findUser(fieldName: string, fieldValue: string): Promise<User | null> {
     const response = await DbContext.findInCollection<User>('users', fieldName, fieldValue);
 
-    return response
-    ? { 
-        _id: response._id, 
-        email : response.email
-    }
-    : null;
+    if (!response) return null;
+
+    return response;
 }
 
-export async function createUser ({ email, password }: UserRequest): Promise<UserResponse | null>  {
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
+export async function insertUser(args: UserRequest): Promise<UserResponse | null> {
     const dateNow = new Date().toISOString();
-
-    const newUser = {
-        email: email,
-        hash: hash,
+    const newUser = ({
+        email: args.email,
+        hash: await bcrypt.hash(args.password, 10),
         dateCreated: dateNow,
         lastUpdated: dateNow
-    };
+    } as User);
 
     const response = await DbContext.insertIntoCollection<User>('users', newUser);
-    
-    return response 
-    ? { 
-        _id: response._id, 
-        email : response.email
-    }
-    : null;
+
+    if (!response) return null;
+
+    return {
+        _id: response._id,
+        email: response.email
+    };
 }

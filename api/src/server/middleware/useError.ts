@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import ApplicationError from '../../helpers/error';
-import { handleError } from '../../utils/errorHandler';
+import logEvent from '../../logger';
+import ApplicationError from '../../helpers/error/ApplicationError';
 
 function useError (error: ApplicationError, req: Request, res: Response, next: NextFunction): Response<unknown> {
-    handleError(error);
+    logEvent.emit('error', error);
     
     return res.status(error.statusCode || 500).json({
         name: error.name,

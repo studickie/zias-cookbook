@@ -29,3 +29,9 @@ export class ApplicationError extends Error {
 }
 
 export default ApplicationError;
+
+/*
+*   Application Error
+    TODO: create error object for Mongo errors, add logging for MongoDB errors which is separate from rest of application
+    TODO: create error object for internal operations, like controllers. add logging 
+*/

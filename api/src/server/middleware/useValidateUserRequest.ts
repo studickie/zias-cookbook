@@ -1,17 +1,21 @@
-import { Request, Response, NextFunction } from 'express';
-import userRequest from '../../models/validation/userRequest';
-import ApplicationError from '../../helpers/error';
+import validateUserRequest from '../../models/validation/userRequest';
+import ApplicationError from '../../helpers/error/ApplicationError';
+import catchAsync from '../helpers/catchAsync';
 
-async function useValidateUserRequest (req: Request, res: Response, next: NextFunction) {
+export default catchAsync(async function useValidateUserRequest (req, res, next) {
     const { email, password } = req.body;
 
-    const response = (await userRequest).validateSchema({email, password});
+    const schema = await validateUserRequest;
 
-    if (response != null || response != undefined) {
-        throw new ApplicationError('Invalid user request', 400);
+    if (!schema) {
+        return next(new ApplicationError('Oops! Something went wrong.', 500));
+    }
+
+    const response = schema.validateSchema({email, password});
+
+    if (response != null) {
+        return next(new ApplicationError('Invalid user request', 400));
     }
     
     return next();
-}
-
-export default useValidateUserRequest;
+});
