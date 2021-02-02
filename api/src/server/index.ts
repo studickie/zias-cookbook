@@ -2,10 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import useError from './middleware/useError';
 import router from './routes';
-
 import { connect } from '../database/connection';
-import ApplicationError from '../helpers/error';
-import { handleError } from '../utils/errorHandler';
+import logEvent from '../logger';
 
 async function main() {
     try {
@@ -31,7 +29,9 @@ async function main() {
         app.use(useError);
 
     } catch (e) {
-        handleError(new ApplicationError(e));
+        logEvent.on('error', e);
+
+        process.exit(1);
     }
 }
 

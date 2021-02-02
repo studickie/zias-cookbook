@@ -4,13 +4,10 @@ import readSchema from '../../helpers/readSchema';
 import UserRequest from '../UserRequest';
 import ISchemaValidation from '../../types/ISchemaValidation';
 
-export default (async function (): Promise<ISchemaValidation<UserRequest>> {
+export default (async function validateUserRequest(): Promise<ISchemaValidation<UserRequest> | null> {
     const schema = await readSchema('userRequest');
 
-    if (!schema) {
-        throw new Error('Schema "userRequest" not found');
-        //! error handler should stop execution
-    }
+    if (!schema) return null;
 
     return new AJVSchemaValidation<UserRequest>(ajv, schema);
 }());

@@ -9,39 +9,36 @@ const dbUrl = process.env.DB_URL;
 const dbUser = process.env.DB_USER;
 const dbPass = process.env.DB_PASS;
 
-const client =  new MongoClient(`mongodb://${dbUser}:${dbPass}@${dbUrl}/${dbName}`, {
+const client = new MongoClient(`mongodb://${dbUser}:${dbPass}@${dbUrl}/${dbName}`, {
     useUnifiedTopology: true
 });
 
-export async function connect () {
+export async function connect(): Promise<void> {
     await client.connect();
 
     console.log('Connection success');
 }
 
-export async function findCollection (col: MongoCollection): Promise<unknown> {
-    try {
-        const response = await client.db(`${dbName}`).collection(col).find().toArray();
+export async function findCollection<T>(col: MongoCollection): Promise<T[]> {
+    const response = await client.db(dbName).collection(col).find<T>().toArray();
 
-        return response;
-
-    } catch (e) {
-        console.log('Error - findCollection', new Error(e));
-    }
+    return response;
 }
 
-export async function findInCollection (col: MongoCollection, fieldName: string, fieldValue: any): Promise<unknown> {
-    try {
-
-        if (fieldName == '_id') {
-            fieldValue = new ObjectId(fieldValue);
-        }
-
-        const response = await client.db(`${dbName}`).collection(col).findOne({ [fieldName]: fieldValue });
-
-        return response;
-
-    } catch (e) {
-        console.log('Error - findInCollection', new Error(e));
+export async function findInCollection<T>(col: MongoCollection, fieldName: string, fieldValue: unknown): Promise<T | null> {
+    if (fieldName == '_id') {
+        fieldValue = new ObjectId((fieldValue as string));
     }
+
+    const response = await client.db(dbName).collection(col).findOne<T>({ [fieldName]: fieldValue });
+
+    return response;
+}
+
+export async function insertIntoCollection<T>(col: MongoCollection, document: unknown): Promise<T | null> {
+    const response = await client.db(dbName).collection(col).insertOne(document);
+
+    return response.result.ok
+        ? response.ops[0]
+        : null;
 }
