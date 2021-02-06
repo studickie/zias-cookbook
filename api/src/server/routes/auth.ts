@@ -37,3 +37,21 @@ export const signin = catchAsync(async (req, res, next) => {
 
      return res.status(200).json({ "user": user, "token": token });
 });
+
+export const verify = catchAsync(async (req, res, next) => {
+    const { token } = req.params;
+
+    if (!Token.compare(token)) {
+        return next(new ApplicationError('Invalid token', 400));
+    }
+
+    const decoded = Token.decode(token);
+    
+    const response = await UserController.verifyNewUser((decoded as { data: { userId: string }}).data.userId);
+
+    if (!response) {
+        return next(new ApplicationError('Oops! Something went wrong.', 500));
+    }
+    
+    return res.status(200).json({ "message": "Good Check!" });
+});
