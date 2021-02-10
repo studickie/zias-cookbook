@@ -4,17 +4,19 @@ import useValidateUserRequest from '../middleware/useValidateUserRequest';
 
 const router = express.Router();
 
-/*
- * "/auth"
-*/
+/* "/" */
+import * as Root from './root';
+
+router.get('/', Root.sendMail);
+
+/* "/auth" */
 import * as Auth from './auth';
 
 router.post('/auth/signin', useValidateUserRequest, Auth.signin);
 router.post('/auth/signup', useValidateUserRequest, Auth.signup);
+router.get('/auth/verify/:token', Auth.verify);
 
-/* 
- *  "/users" 
-*/
+/* "/users" */
 import * as Users from './users';
 
 router.get('/users', useValidateToken, Users.get);

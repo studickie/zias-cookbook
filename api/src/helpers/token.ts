@@ -10,3 +10,7 @@ export function generate (data: unknown): string {
 export function compare(token: string): unknown {
     return jwt.verify(token, 'super!secret');
 }
+
+export function decode(token: string): unknown {
+    return jwt.decode(token);
+}

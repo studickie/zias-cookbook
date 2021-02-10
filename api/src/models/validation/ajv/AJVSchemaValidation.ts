@@ -2,16 +2,16 @@ import Ajv, { ValidateFunction } from 'ajv';
 import ISchemaValidation from '../../../types/ISchemaValidation';
 
 class AJVSchemaValidation<T> implements ISchemaValidation<T> {
-    validate: ValidateFunction<T>;
+    private _validate: ValidateFunction<T>;
 
     constructor(ajv: Ajv, schema: T) {
-        this.validate = ajv.compile<T>(schema);
+        this._validate = ajv.compile<T>(schema);
     }
 
     validateSchema (data: T): unknown {
-        this.validate(data);
+        this._validate(data);
 
-        return this.validate.errors || null;
+        return this._validate.errors || null;
     }
 }
 

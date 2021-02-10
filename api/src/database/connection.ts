@@ -1,4 +1,6 @@
 import { MongoClient, ObjectId } from 'mongodb';
+import { UpdateQuery } from 'mongoose';
+import DBResponse from '../types/DBResponse';
 
 type MongoCollection =
     | 'users'
@@ -20,6 +22,7 @@ export async function connect(): Promise<void> {
 }
 
 export async function findCollection<T>(col: MongoCollection): Promise<T[]> {
+
     const response = await client.db(dbName).collection(col).find<T>().toArray();
 
     return response;
@@ -41,4 +44,14 @@ export async function insertIntoCollection<T>(col: MongoCollection, document: un
     return response.result.ok
         ? response.ops[0]
         : null;
+}
+
+export async function updateOneInCollection(col: MongoCollection, fieldName: string, fieldValue: unknown, updateDoc: UpdateQuery<any>): Promise<boolean> {
+    if (fieldName == '_id') {
+        fieldValue = new ObjectId((fieldValue as string));
+    }
+    
+    const response = await client.db(dbName).collection(col).updateOne({ [fieldName]: fieldValue }, updateDoc);
+    
+    return response.result.ok ? true : false;
 }
