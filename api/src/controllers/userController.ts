@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import emailEvent from '../helpers/email';
+import emailEvent from '../helpers/mailer';
 import * as DbContext from '../database/connection';
 import User, { UserActiveStatus } from '../models/User';
 import UserRequest from '../models/UserRequest';
