@@ -1,4 +1,4 @@
 type ProjectSchema = 
-    | 'userRequest';
+    | 'createUserRequest';
 
 export default ProjectSchema;

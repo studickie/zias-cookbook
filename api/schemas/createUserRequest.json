@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://zias-cookbook.ca/api/schemas/userRequest.json",
+    "$id": "https://zias-cookbook.ca/api/schemas/createUserRequest.json",
     "type": "object",
     "properties": {
         "email": {

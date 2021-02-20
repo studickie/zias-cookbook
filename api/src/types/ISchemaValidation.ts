@@ -1,5 +1,3 @@
-interface ISchemaValidation<T> {
+export default interface ISchemaValidation<T> {
     validateSchema: (data: T) => unknown | null;
 }
-
-export default ISchemaValidation;
