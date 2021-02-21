@@ -35,6 +35,7 @@ async function main() {
         const app = express();
 
         app.use(bodyParser.json());
+        app.use(bodyParser.urlencoded({ extended: true }));
         
         const router = express.Router();
         app.use('/auth', authRoutes(router, dbAccess, mailService, tokenService));

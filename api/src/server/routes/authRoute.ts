@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import IMailService from '../../types/IMailService';
+import { IMailService } from '../../mailer';
 import { AccessConstructor } from '../../database';
-import Users from '../../database/Users';
+import Users from '../../database/repos/UsersRepo';
 import { IAuthToken } from '../../helpers/authToken';
 
 export default function authRoutes (router: Router, dbAccess: AccessConstructor, mailService: IMailService, tokenService: IAuthToken): Router {
@@ -50,6 +50,46 @@ export default function authRoutes (router: Router, dbAccess: AccessConstructor,
         }
     });
 
+    router.post('/requestResetPassword', async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const response = await dbAccess(Users).requestPasswordReset({ email: req.body.email });
+
+            if (!response) {
+                throw new Error('Oops! Something went wrong');
+            } 
+
+            mailService.sendChangePassword(req.body.email, response.token );
+
+            return res.status(200).json({ message: 'Password reset sent' });
+            
+        } catch (e) {
+            return next(e);
+        }
+    });
+
+    router.get('/resetPassword/:token', async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const token = req.params.token;
+            const pass = req.query.pass?.toString() || '';
+            const verifyPass = req.query.verifyPass?.toString();
+
+            if ((!pass || !verifyPass ) || pass !== verifyPass) {
+                throw new Error('Values do not match');
+            }
+
+            const response = dbAccess(Users).verifyPasswordReset(token, pass);
+
+            if (!response) {
+                throw new Error('Bad Request');
+            }
+
+            return res.status(200).json({ message: 'Password reset successfuly' });
+
+        } catch (e) {
+            return next(e);
+        }
+    })
+
     router.get('/verifyEmail/:token', async (req: Request, res: Response, next: NextFunction) => {
         try {
             const response = await dbAccess(Users).verifyEmail(req.params.token);
@@ -62,14 +102,6 @@ export default function authRoutes (router: Router, dbAccess: AccessConstructor,
             return next(e);
         }
     });
-
-    // router.post('/changePassword', async (req: Request, res: Response, next: NextFunction) => {
-    //     try {
-
-    //     } catch (e) {   
-    //         return next(e);
-    //     }
-    // });
 
     return router;
 }

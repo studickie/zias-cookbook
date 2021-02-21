@@ -4,9 +4,9 @@ type MongoCollection =
     | 'users' 
     | 'userTokens';
 
-type MongoSchema = { _id: string | number | ObjectId | undefined };
+type DbId = { _id: string | number | ObjectId | undefined };
 
-export default abstract class MongoAccess<T extends MongoSchema> {
+export default abstract class BaseRepo<T extends DbId> {
     protected readonly _context: Db;
     protected readonly _collection: MongoCollection;
 
@@ -14,8 +14,12 @@ export default abstract class MongoAccess<T extends MongoSchema> {
         this._context = context;
         this._collection = collection;
     }
-
+    
     public async find (filters?: any): Promise<T[]> {
+        if (filters?._id) { 
+            filters._id = new ObjectId(filters._id);
+        }
+
         return await this._context.collection(this._collection).find(filters).toArray();
     }
 
@@ -27,7 +31,7 @@ export default abstract class MongoAccess<T extends MongoSchema> {
         return await this._context.collection(this._collection).findOne(filters);
     }
 
-    public async insertOne (insertDoc: Omit<T, '_id'>): Promise<T | null> {
+    protected async insertOne (insertDoc: Omit<T, '_id'>): Promise<T | null> {
         // TODO: add "updatedOn" update to each request
         // TODO: add "createdOn" value to each request
 
@@ -37,11 +41,14 @@ export default abstract class MongoAccess<T extends MongoSchema> {
     }
 
 
-    public async updateOne (filter: any, update: any ): Promise<boolean> {
+    protected async updateOne (filters: any, update: any ): Promise<boolean> {
+        if (filters._id) { 
+            filters._id = new ObjectId(filters._id);
+        }
         // TODO: add "updatedOn" update to each request
 
-        const response = await this._context.collection(this._collection).updateOne(filter, update);
-
+        const response = await this._context.collection(this._collection).updateOne(filters, update);
+        
         return (response.result.ok && response.modifiedCount > 0) ? true: false;
     }
 }

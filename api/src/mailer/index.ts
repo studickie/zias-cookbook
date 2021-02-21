@@ -1,6 +1,11 @@
 import nodemailer from 'nodemailer';
 import NodemailerService from './NodemailerService';
-import IMailService from '../types/IMailService';
+
+export interface IMailService {
+    sendEmail: (to: string, subject: string, body: string) => Promise<void>;
+    sendVerificationEmail: (email: string, token: string) => void;
+    sendChangePassword(email: string, token: string): void;
+}
 
 export default function nodemailerStartup (mailHost: string, mailUser: string, mailPass: string): IMailService {
     const transporter = nodemailer.createTransport({

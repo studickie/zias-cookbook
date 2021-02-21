@@ -1,11 +1,19 @@
 import Mail from "nodemailer/lib/mailer";
-import IMailService from "../types/IMailService";
+import { IMailService } from './';
 
 export default class NodemailerService implements IMailService {
     private _nodemailer: Mail
 
     constructor (nodemailer: Mail) {
         this._nodemailer = nodemailer;
+    }
+
+    sendChangePassword(email: string, token: string): void {
+        const newPass = 'new!Pass?1234';
+
+        const verifyUrl = `a href=http://localhost:4000/auth/resetPassword/${token}/?pass=${newPass}&verifyPass=${newPass}`;
+
+        this.sendEmail(email, 'Zia\'s Cookbook - Reset Password', verifyUrl);
     }
 
     sendVerificationEmail(email: string, token: string): void {

@@ -1,7 +1,6 @@
 import Ajv, { ValidateFunction } from 'ajv';
-import ISchemaValidation from '../../../types/ISchemaValidation';
 
-class AJVSchemaValidation<T> implements ISchemaValidation<T> {
+export default class AJVSchemaValidation<T> {
     private _validate: ValidateFunction<T>;
 
     constructor(ajv: Ajv, schema: T) {
@@ -14,5 +13,3 @@ class AJVSchemaValidation<T> implements ISchemaValidation<T> {
         return this._validate.errors || null;
     }
 }
-
-export default AJVSchemaValidation;

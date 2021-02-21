@@ -1,6 +1,6 @@
 import { MongoClient, Db } from 'mongodb';
 
-export type AccessConstructor = <T>(C: new (db: Db) => T) => InstanceType<typeof C>;
+export type AccessConstructor = <T>(Repo: new (db: Db) => T) => InstanceType<typeof Repo>;
 
 export default async function dbConnect(dbHost: string, dbName: string, dbUser: string, dbPass: string): Promise<AccessConstructor> {
     
@@ -10,5 +10,5 @@ export default async function dbConnect(dbHost: string, dbName: string, dbUser: 
 
     await client.connect();
 
-    return (C) => new C(client.db(dbName));
+    return (Repo) => new Repo(client.db(dbName));
 }
