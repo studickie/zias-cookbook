@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 
 export enum UserActiveStatus {
     unverified = 0,
@@ -13,6 +14,8 @@ export default interface User {
     createdOn: Date;
     updatedOn: Date;
     active: UserActiveStatus;
+    verifyEmail: string | null;
+    verifyEmailCreatedOn: Date | null;
 }
 
 export async function validatePassword (hash: string, password: string): Promise<boolean> {
@@ -34,12 +37,17 @@ export async function createUser (args: Pick<User, 'email' | 'pass'>): Promise<C
 
         const currentDate = new Date();
 
+        const verifyToken = crypto.randomBytes(256).toString('hex');
+        const verifyExp = currentDate;
+
         return {
             email: args.email,
             pass: hash,
             createdOn: currentDate, 
             updatedOn: currentDate,
-            active: UserActiveStatus.unverified
+            active: UserActiveStatus.unverified,
+            verifyEmail: verifyToken,
+            verifyEmailCreatedOn: verifyExp
         };
 
     } catch (e) {

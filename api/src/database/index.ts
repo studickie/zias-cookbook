@@ -10,5 +10,5 @@ export default async function dbConnect(dbHost: string, dbName: string, dbUser: 
 
     await client.connect();
 
-    return <T>(C: new (db: Db) => T) => new C(client.db(dbName));
+    return (C) => new C(client.db(dbName));
 }

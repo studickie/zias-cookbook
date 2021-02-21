@@ -1,22 +1,20 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import IMailService from '../../types/IMailService';
-import { UserActiveStatus, validatePassword } from '../../models/User';
-import jwt from 'jsonwebtoken';
 import { AccessConstructor } from '../../database';
 import Users from '../../database/Users';
-import UserTokens from '../../database/UserToken';
+import { IAuthToken } from '../../helpers/authToken';
 
-export default function authRoutes (router: Router, dbAccess: AccessConstructor, mailService: IMailService): Router {
+export default function authRoutes (router: Router, dbAccess: AccessConstructor, mailService: IMailService, tokenService: IAuthToken): Router {
 
     router.post('/signin', async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const user = await dbAccess(Users).findOne({ email: req.body.email });
+            const user = await dbAccess(Users).verifyPassword({ email: req.body.email, pass: req.body.password });
             
-            if (user === null || !await validatePassword(user.pass, req.body.password)) {
+            if (user === null) {
                 return next(new Error('Incorrect username or password'));
             }
 
-            const token = jwt.sign({ id: user._id }, 'super!secret?string');
+            const token = tokenService.generate({ userId: user._id });
 
             return res.status(200).json({ message: 'Login succesful', token });
 
@@ -33,48 +31,30 @@ export default function authRoutes (router: Router, dbAccess: AccessConstructor,
                 return next(new Error('User already exists'));
             }
 
-            const dbUser = await dbAccess(Users).insertOne({ email: req.body.email, pass: req.body.password });
+            const newUser = await dbAccess(Users).create({ email: req.body.email, pass: req.body.password });
 
-            if (dbUser === null) {
+            if (newUser === null) {
                 return next(new Error('Oops! Something went wrong'));
             }
 
-            const userToken = await dbAccess(UserTokens).insertOne({ userId: (dbUser._id as string) });
-
-            if (userToken === null) {
-                /*
-                    if userToken's insert has error can the insert be backtracked? 
-                        else - provide user with method to report & request new token
-                */
-
-                //~ log error
-            } else {
-                mailService.sendVerificationEmail(dbUser.email, userToken.token);
+            if (newUser.verifyEmail !== null) {
+                mailService.sendVerificationEmail(newUser.email, newUser.verifyEmail);
             }
 
-            return res.status(200).json({ message: 'User created successfuly' });
+            const token = tokenService.generate({ userId: newUser._id });
+
+            return res.status(200).json({ message: 'User created successfuly', token });
 
         } catch (e) {
             return next(e);
         }
     });
 
-    router.get('/verifyEmail', async (req: Request, res: Response, next: NextFunction) => {
+    router.get('/verifyEmail/:token', async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userToken = await dbAccess(UserTokens).findOne({ token: req.body.token });
-
-            if (userToken === null) {
-                return next(new Error('Invalid token'));
-            }
-
-            await dbAccess(Users).updateOne({ 
-                    _id: userToken.userId 
-                }, {
-                    $set: {
-                        active: UserActiveStatus.active,
-                        updatedOn: new Date()
-                    }
-                });
+            const response = await dbAccess(Users).verifyEmail(req.params.token);
+                
+            if (!response) throw new Error('Invalid token');
             
             return res.status(200).json({ message: 'Successfuly verified' });
 

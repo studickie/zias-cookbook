@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoute';
 import dbConnect from '../database';
 import logEvent from '../logger';
 import nodemailerStartup from '../mailer';
+import authToken from '../helpers/authToken';
 
 async function main() {
     try {
@@ -23,13 +24,20 @@ async function main() {
 
         const mailService = nodemailerStartup(mailHost, mailUser, mailPass);
 
+        // Token Service
+        const secret = process.env.SECRET;
+
+        if (secret === undefined) throw new Error('Variable is undefined');
+
+        const tokenService = authToken(secret);
+
         // Framework configuration
         const app = express();
 
         app.use(bodyParser.json());
         
         const router = express.Router();
-        app.use('/auth', authRoutes(router, dbAccess, mailService));
+        app.use('/auth', authRoutes(router, dbAccess, mailService, tokenService));
 
         app.use(useError);
 

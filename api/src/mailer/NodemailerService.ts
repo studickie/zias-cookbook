@@ -9,7 +9,7 @@ export default class NodemailerService implements IMailService {
     }
 
     sendVerificationEmail(email: string, token: string): void {
-        const verifyUrl = `<a href='http://localhost:4000/auth/verify/${token}'>Verify Now</a>`;
+        const verifyUrl = `<a href='http://localhost:4000/auth/verifyEmail/${token}'>Verify Now</a>`;
 
         this.sendEmail(email, 'Zia\'s Cookbook - Verify Email', verifyUrl);
     }
