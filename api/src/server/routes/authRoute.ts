@@ -4,7 +4,34 @@ import { AccessConstructor } from '../../database';
 import Users from '../../database/repos/UsersRepo';
 import { IAuthToken } from '../../helpers/authToken';
 
+import { OAuth2Client } from 'google-auth-library';
+const clientId = '334487151393-9f1arbn0no5fpmt137bj6333f6702g38.apps.googleusercontent.com';
+const client = new OAuth2Client(clientId);
+
 export default function authRoutes (router: Router, dbAccess: AccessConstructor, mailService: IMailService, tokenService: IAuthToken): Router {
+
+    router.post('/google_signin', async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const ticket = await client.verifyIdToken({
+                idToken: req.body.token,
+                audience: clientId
+            });
+
+            const payload = ticket.getPayload();
+
+            if (!payload || (payload['aud'] !== clientId)) {
+                return next(new Error('Invalid auth token'));
+            }
+
+            return res.status(200).json({ 
+                message: 'Successful Google sign-in',
+                user: payload['sub']
+             });
+
+        } catch (e) {
+            return next(e);
+        }
+    });
 
     router.post('/signin', async (req: Request, res: Response, next: NextFunction) => {
         try {
