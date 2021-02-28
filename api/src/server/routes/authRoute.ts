@@ -5,7 +5,7 @@ import Users from '../../database/repos/UsersRepo';
 import { IAuthToken } from '../../helpers/authToken';
 
 import { OAuth2Client } from 'google-auth-library';
-const clientId = '334487151393-9f1arbn0no5fpmt137bj6333f6702g38.apps.googleusercontent.com';
+const clientId = process.env.GOOGLE_CLIENT_ID || '';
 const client = new OAuth2Client(clientId);
 
 export default function authRoutes (router: Router, dbAccess: AccessConstructor, mailService: IMailService, tokenService: IAuthToken): Router {
