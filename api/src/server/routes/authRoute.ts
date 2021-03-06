@@ -20,7 +20,7 @@ export default function authRoutes (router: Router, dbAccess: AccessConstructor,
             const payload = ticket.getPayload();
 
             if (!payload || (payload['aud'] !== clientId)) {
-                return next(new Error('Invalid auth token'));
+                return next(new Error('Invalid token'));
             }
 
             return res.status(200).json({ 
