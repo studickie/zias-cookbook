@@ -3,7 +3,7 @@ import { MongoClient, Db } from 'mongodb';
 export type AccessConstructor = <T>(Repo: new (db: Db) => T) => InstanceType<typeof Repo>;
 
 export default async function dbConnect(dbHost: string, dbName: string, dbUser: string, dbPass: string): Promise<AccessConstructor> {
-    console.log('connect string', `mongodb://${dbUser}:${dbPass}@${dbHost}/${dbName}`)
+    
     const client = new MongoClient(`mongodb://${dbUser}:${dbPass}@${dbHost}/${dbName}`, {
         useUnifiedTopology: true
     });
