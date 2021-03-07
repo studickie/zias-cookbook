@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-signin-client_id" content="334487151393-2mmjdmfao1602jgm37pcrucrfhemk7un.apps.googleusercontent.com">
+    <meta name="google-signin-client_id"
+        content="334487151393-2mmjdmfao1602jgm37pcrucrfhemk7un.apps.googleusercontent.com">
 
     <title>Google OAuth</title>
 </head>
+
 <body>
     <div class="g-signin2" data-onsuccess="onSignIn"></div>
 
@@ -22,21 +25,27 @@
             console.log('Email: ' + profile.getEmail());
 
             var gToken = googleUser.getAuthResponse().id_token;
-            
+
             postSignin(gToken);
         }
 
-        async function postSignin (gToken) {
-            const response = await fetch('https://dev.zias-cookbook.ca/api/auth/google_signin', {
+        function postSignin(gToken) {
+            fetch('https://dev.zias-cookbook.ca/api/auth/google_signin', {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json'
                 },
                 body: JSON.stringify({ token: gToken })
-            });
-
-            console.log('response: ' + response.json());
+            })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('response: ' + response.json());
+                    } else {
+                        console.log('error requesting login');
+                    }
+                });
         }
     </script>
 </body>
+
 </html>
