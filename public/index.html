@@ -39,12 +39,7 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.ok) {
-                        console.log('data: ' + data);
-                    }
-                     else {
-                        console.log('error requesting login');
-                    }
+                    console.log('data', data);
                 });
         }
     </script>
