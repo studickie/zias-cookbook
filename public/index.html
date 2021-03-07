@@ -27,7 +27,7 @@
         }
 
         async function postSignin (gToken) {
-            const response = await fetch('https://dev.zias-cookbook.ca/auth/google_signin', {
+            const response = await fetch('https://dev.zias-cookbook.ca/api/auth/google_signin', {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json'
