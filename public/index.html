@@ -37,10 +37,12 @@
                 },
                 body: JSON.stringify({ token: gToken })
             })
-                .then(response => {
-                    if (response.ok) {
-                        console.log('response: ' + response.json());
-                    } else {
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log('data: ' + data);
+                    }
+                     else {
                         console.log('error requesting login');
                     }
                 });
