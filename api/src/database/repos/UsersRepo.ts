@@ -1,7 +1,5 @@
 import BaseRepo from './BaseRepo';
-import User, { DbUser, DbUserAuthCredentials, DbUserActiveStatus } from '../models/User';
-
-import crypto from 'crypto';
+import User, { DbUser, DbUserAuthCredentials } from '../models/User';
 
 export default class UsersRepo extends BaseRepo<DbUser> {
 
@@ -9,84 +7,92 @@ export default class UsersRepo extends BaseRepo<DbUser> {
         super(context, 'users');
     }
 
-    async create (insertDoc: DbUserAuthCredentials): Promise<DbUser | null> {
-        const createdUser = await User.create({ email: insertDoc.email, pass: insertDoc.pass });
-        
+    async create(args: DbUserAuthCredentials): Promise<DbUser | null> {
+        const createdUser = User.create(args);
+
         if (createdUser === null) return null;
 
         return await super.insertOne(createdUser);
     }
 
-    async verifyPassword (user: DbUserAuthCredentials): Promise<DbUser | null> {
-        const matchedUser = await super.findOne({ email: user.email });
+    // async create (insertDoc: DbUserAuthCredentials): Promise<DbUser | null> {
+    //     const createdUser = await User.create({ email: insertDoc.email, pass: insertDoc.pass });
 
-        if (matchedUser === null || !await User.validatePassword(matchedUser.pass, user.pass)) {
-            return null;
-        }
+    //     if (createdUser === null) return null;
 
-        return matchedUser;
-    }
+    //     return await super.insertOne(createdUser);
+    // }
 
-    async requestPasswordReset (reqEmail: Pick<DbUser, 'email'>): Promise<{ token: string } | null> {
-        const filters = reqEmail;
+    // async verifyPassword (user: DbUserAuthCredentials): Promise<DbUser | null> {
+    //     const matchedUser = await super.findOne({ email: user.email });
 
-        const currentDate = new Date();
-        const token = crypto.randomBytes(256).toString('hex');
+    //     if (matchedUser === null || !await User.validatePassword(matchedUser.pass, user.pass)) {
+    //         return null;
+    //     }
 
-        const updateDoc = {
-            $set: {
-                verifyPass: token,
-                verifyPassCreatedOn: currentDate,
-                updatedOn: currentDate
-            }
-        };
+    //     return matchedUser;
+    // }
 
-        const response = await super.updateOne(filters, updateDoc);
+    // async requestPasswordReset (reqEmail: Pick<DbUser, 'email'>): Promise<{ token: string } | null> {
+    //     const filters = reqEmail;
 
-        if (!response) return null;
+    //     const currentDate = new Date();
+    //     const token = crypto.randomBytes(256).toString('hex');
 
-        return { token };
-    }
+    //     const updateDoc = {
+    //         $set: {
+    //             verifyPass: token,
+    //             verifyPassCreatedOn: currentDate,
+    //             updatedOn: currentDate
+    //         }
+    //     };
 
-    async verifyPasswordReset (token: string, newPass: string): Promise<boolean> {
-        const filters = {
-            verifyPass: token,
-            verifyPassCreatedOn: {
-                $lt: new Date(Date.now() + 5 * (60 * 1000))
-            }
-        };
+    //     const response = await super.updateOne(filters, updateDoc);
 
-        const encryptedPass = await User.encrypt(newPass);
+    //     if (!response) return null;
 
-        const updateDoc = {
-            $set: {
-                verifyPass: null,
-                verifyPassCreatedOn: null,
-                pass: encryptedPass,
-                updatedOn: new Date()
-            }
-        };
+    //     return { token };
+    // }
 
-        return await super.updateOne(filters, updateDoc);
-    }
+    // async verifyPasswordReset (token: string, newPass: string): Promise<boolean> {
+    //     const filters = {
+    //         verifyPass: token,
+    //         verifyPassCreatedOn: {
+    //             $lt: new Date(Date.now() + 5 * (60 * 1000))
+    //         }
+    //     };
 
-    async verifyEmail (token: string): Promise<boolean> {
-        const filters = {
-            verifyEmail: token,
-            verifyEmailCreatedOn: {
-                $lt: new Date(Date.now() + 5 * (60 * 1000))
-            }
-        };
+    //     const encryptedPass = await User.encrypt(newPass);
 
-        const updateDoc = {
-            $set: {
-                active: DbUserActiveStatus.active,
-                verifyEmail: null,
-                verifyEmailCreatedOn: null,
-                updatedOn: new Date()
-            }
-        };
+    //     const updateDoc = {
+    //         $set: {
+    //             verifyPass: null,
+    //             verifyPassCreatedOn: null,
+    //             pass: encryptedPass,
+    //             updatedOn: new Date()
+    //         }
+    //     };
 
-        return await super.updateOne(filters, updateDoc);
-    }
+    //     return await super.updateOne(filters, updateDoc);
+    // }
+
+    // async verifyEmail (token: string): Promise<boolean> {
+    //     const filters = {
+    //         verifyEmail: token,
+    //         verifyEmailCreatedOn: {
+    //             $lt: new Date(Date.now() + 5 * (60 * 1000))
+    //         }
+    //     };
+
+    //     const updateDoc = {
+    //         $set: {
+    //             active: DbUserActiveStatus.active,
+    //             verifyEmail: null,
+    //             verifyEmailCreatedOn: null,
+    //             updatedOn: new Date()
+    //         }
+    //     };
+
+    //     return await super.updateOne(filters, updateDoc);
+    // }
 }

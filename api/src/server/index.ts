@@ -1,15 +1,14 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import useError from './middleware/useError';
 import authRoutes from './routes/authRoute';
 import dbConnect from '../database';
 import logEvent from '../logger';
-import nodemailerStartup from '../mailer';
+//import nodemailerStartup from '../mailer';
 import authToken from '../helpers/authToken';
+import googleService from '../google';
 
 async function main() {
     try {
-        // Db Connection
         const dbHost = process.env.DB_HOST || '';
         const dbName = process.env.DB_NAME || '';
         const dbUser = process.env.DB_USER || '';
@@ -18,27 +17,34 @@ async function main() {
         const dbAccess = await dbConnect(dbHost, dbName, dbUser, dbPass);
 
         // Mail Service
-        const mailHost = process.env.MAIL_HOST || '';
-        const mailUser = process.env.MAIL_USER || '';
-        const mailPass = process.env.MAIL_PASS || '';
+        // const mailHost = process.env.MAIL_HOST || '';
+        // const mailUser = process.env.MAIL_USER || '';
+        // const mailPass = process.env.MAIL_PASS || '';
 
-        const mailService = nodemailerStartup(mailHost, mailUser, mailPass);
+        // const mailService = nodemailerStartup(mailHost, mailUser, mailPass);
 
-        // Token Service
         const secret = process.env.SECRET;
 
-        if (secret === undefined) throw new Error('Variable is undefined');
+        if (secret === undefined) throw new Error('"authToken" is undefined');
 
         const tokenService = authToken(secret);
 
-        // Framework configuration
-        const app = express();
+        const googleClientId = process.env.GOOGLE_CLIENT_ID;
 
-        app.use(bodyParser.json());
-        app.use(bodyParser.urlencoded({ extended: true }));
+        if (googleClientId === undefined) throw new Error('"googleService" is undefined');
+
+        const google = googleService(googleClientId);
+
+        //* Framework configuration
+        const app = express();
         
+        //* Configure middleware
+        app.use(express.json());
+        app.use(express.urlencoded({ extended: true }));
+
+        //* Configure routes
         const router = express.Router();
-        app.use('/auth', authRoutes(router, dbAccess, mailService, tokenService));
+        app.use('/auth', authRoutes(router, { dbAccess, authToken: tokenService, google }));
 
         app.use(useError);
 
