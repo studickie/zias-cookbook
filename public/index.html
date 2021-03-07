@@ -22,8 +22,8 @@
             console.log('Email: ' + profile.getEmail());
 
             var gToken = googleUser.getAuthResponse().id_token;
-            console.log('token', gToken);
-            //postSignin(gToken);
+            
+            postSignin(gToken);
         }
 
         async function postSignin (gToken) {
