@@ -1,6 +1,7 @@
 import express from 'express';
 import useError from './middleware/useError';
 import authRoutes from './routes/authRoute';
+import rootRoutes from './routes/rootRoute';
 import dbConnect from '../database';
 import logEvent from '../logger';
 //import nodemailerStartup from '../mailer';
@@ -44,6 +45,7 @@ async function main() {
 
         //* Configure routes
         const router = express.Router();
+        app.use('/', rootRoutes(router));
         app.use('/auth', authRoutes(router, { dbAccess, authToken: tokenService, google }));
 
         app.use(useError);
